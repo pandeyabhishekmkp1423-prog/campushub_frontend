@@ -1,0 +1,40 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 200 200"
+  width="64"
+  height="64"
+  preserveAspectRatio="xMidYMid meet"
+>
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e40af"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Shield -->
+  <path
+    d="M100 10
+       C140 20 170 25 170 25
+       V95
+       C170 135 135 165 100 190
+       C65 165 30 135 30 95
+       V25
+       C30 25 60 20 100 10Z"
+    fill="url(#grad)"
+  />
+
+  <!-- Text -->
+  <text
+    x="50%"
+    y="58%"
+    text-anchor="middle"
+    fill="#ffffff"
+    font-size="42"
+    font-weight="800"
+    font-family="Arial, sans-serif"
+    letter-spacing="2"
+  >
+    CH
+  </text>
+</svg>
