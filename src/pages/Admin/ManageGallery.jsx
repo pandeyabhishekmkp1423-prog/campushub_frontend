@@ -1,15 +1,9 @@
 import { useState } from "react";
 import api from "../../services/api";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
 
 export default function ManageGallery() {
   const [category, setCategory] = useState("events");
-  const [image, setImage] = useState(null);
+  const [imageUrl, setImageUrl] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -17,38 +11,21 @@ export default function ManageGallery() {
     e.preventDefault();
     setMessage("");
 
-    if (!image) {
-      setMessage("Please select an image");
+    if (!imageUrl) {
+      setMessage("Please provide image URL");
       return;
     }
 
     setLoading(true);
 
     try {
-      /* 1️⃣ Upload to Supabase Storage */
-      const filePath = `${category}/${Date.now()}-${image.name}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("gallery")
-        .upload(filePath, image);
-
-      if (uploadError) throw uploadError;
-
-      /* 2️⃣ Get public URL */
-      const { data } = supabase.storage
-        .from("gallery")
-        .getPublicUrl(filePath);
-
-      const publicUrl = data.publicUrl;
-
-      /* 3️⃣ Save URL in DB via backend */
       await api.post("/admin/gallery", {
         category,
-        image_url: publicUrl,
+        image_url: imageUrl,
       });
 
-      setMessage("✅ Image uploaded successfully");
-      setImage(null);
+      setMessage("✅ Image saved successfully");
+      setImageUrl("");
     } catch (err) {
       console.error("UPLOAD ERROR:", err);
       setMessage("❌ Upload failed");
@@ -76,16 +53,19 @@ export default function ManageGallery() {
         </select>
 
         <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImage(e.target.files[0])}
+          type="url"
+          placeholder="Paste image public URL"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          className="w-full border p-2 rounded"
+          required
         />
 
         <button
           disabled={loading}
           className="bg-teal-600 text-white px-4 py-2 rounded"
         >
-          {loading ? "Uploading..." : "Upload Image"}
+          {loading ? "Saving..." : "Save Image"}
         </button>
 
         {message && <p className="text-sm mt-2">{message}</p>}
