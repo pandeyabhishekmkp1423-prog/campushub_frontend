@@ -9,8 +9,6 @@ import Gallery from "./pages/Gallery";
 import Login from "./pages/Login";
 import Enquiry from "./pages/Enquiry";
 
-
-
 // Admin
 import AdminLogin from "./pages/Admin/AdminLogin";
 import Dashboard from "./pages/Admin/Dashboard";
@@ -23,20 +21,17 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public */}
+        {/* ================= PUBLIC ================= */}
         <Route path="/" element={<Home />} />
         <Route path="/courses" element={<Courses />} />
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/login" element={<Login />} />
         <Route path="/enquiry" element={<Enquiry />} />
 
+        {/* ================= ADMIN LOGIN ================= */}
+        <Route path="/admin/login" element={<AdminLogin />} />
 
-
-
-        {/* Admin Login */}
-        <Route path="/admin" element={<AdminLogin />} />
-
-        {/* Admin Protected Layout */}
+        {/* ================= ADMIN PANEL (PROTECTED) ================= */}
         <Route
           path="/admin"
           element={
@@ -48,7 +43,7 @@ export default function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="notices" element={<ManageNotices />} />
           <Route path="gallery" element={<ManageGallery />} />
-          <Route path="courses" element={<ManageCourses/>}/>
+          <Route path="courses" element={<ManageCourses />} />
           <Route path="users" element={<RegisteredUsers />} />
         </Route>
       </Routes>

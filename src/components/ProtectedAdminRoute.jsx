@@ -5,7 +5,7 @@ export default function ProtectedAdminRoute({ children }) {
   const role = localStorage.getItem("adminRole");
 
   if (!token || role !== "admin") {
-    return <Navigate to="/admin" replace />;
+    return <Navigate to="/admin/login" replace />;
   }
 
   return children;
