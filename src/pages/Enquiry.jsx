@@ -19,25 +19,29 @@ export default function Enquiry() {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setStatus("Submitting...");
-  setLoading(true);
+    e.preventDefault();
+    setStatus("Submitting...");
+    setLoading(true);
 
-  console.log("FORM DATA:", form);
+    try {
+      const res = await publicApi.post("/enquiry", form);
+      console.log("ENQUIRY RESPONSE:", res.data);
 
-  try {
-    const res = await publicApi.post("/public/enquiry", form);
-    console.log("RESPONSE:", res.data);
-
-    setStatus("✅ Enquiry submitted successfully!");
-  } catch (err) {
-    console.error("ENQUIRY ERROR:", err);
-    console.error("RESPONSE:", err?.response);
-    setStatus("❌ Submission failed");
-  } finally {
-    setLoading(false);
-  }
-};
+      setStatus("✅ Enquiry submitted successfully!");
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        course_interest: "",
+        message: "",
+      });
+    } catch (err) {
+      console.error("ENQUIRY ERROR:", err);
+      setStatus("❌ Submission failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="admin-login-wrapper">
@@ -49,11 +53,45 @@ export default function Enquiry() {
         <h1 className="admin-title">Admission Enquiry</h1>
         <p className="admin-subtitle">We will contact you shortly</p>
 
-        <input name="name" value={form.name} onChange={handleChange} placeholder="Full Name" required />
-        <input name="email" value={form.email} onChange={handleChange} placeholder="Email" required />
-        <input name="phone" value={form.phone} onChange={handleChange} placeholder="Phone Number" required />
-        <input name="course_interest" value={form.course_interest} onChange={handleChange} placeholder="Course Interested" required />
-        <textarea name="message" value={form.message} onChange={handleChange} placeholder="Message" className="h-24" />
+        <input
+          name="name"
+          value={form.name}
+          onChange={handleChange}
+          placeholder="Full Name"
+          required
+        />
+
+        <input
+          name="email"
+          value={form.email}
+          onChange={handleChange}
+          placeholder="Email"
+          required
+        />
+
+        <input
+          name="phone"
+          value={form.phone}
+          onChange={handleChange}
+          placeholder="Phone Number"
+          required
+        />
+
+        <input
+          name="course_interest"
+          value={form.course_interest}
+          onChange={handleChange}
+          placeholder="Course Interested"
+          required
+        />
+
+        <textarea
+          name="message"
+          value={form.message}
+          onChange={handleChange}
+          placeholder="Message"
+          className="h-24"
+        />
 
         <button type="submit" disabled={loading}>
           {loading ? "Submitting..." : "Submit Enquiry"}
