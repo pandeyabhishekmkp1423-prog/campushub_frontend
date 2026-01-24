@@ -2,108 +2,111 @@ import { useEffect, useState } from "react";
 import api from "../../services/api";
 
 export default function ManageNotices() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("general");
   const [notices, setNotices] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
-  const fetchNotices = async () => {
-    const res = await api.get("/notices");
-    setNotices(res.data);
-  };
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    category: "general",
+  });
 
-  useEffect(() => {
-    fetchNotices();
-  }, []);
-
-  const handleAdd = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
-
+  const loadNotices = async () => {
     try {
-      await api.post("/notices", {
-        title,
-        description,
-        category,
-      });
-
-      setTitle("");
-      setDescription("");
-      setCategory("general");
-      setMessage("Notice added successfully");
-
-      fetchNotices(); // 🔥 IMPORTANT
+      const res = await api.get("/admin/notices");
+      setNotices(res.data);
+      setError("");
     } catch (err) {
-      setMessage("Failed to add notice");
-    } finally {
-      setLoading(false);
+      setError("Failed to load notices");
+      console.error(err);
     }
   };
 
-  const handleDelete = async (id) => {
-    await api.delete(`/notices/${id}`);
-    fetchNotices();
+  useEffect(() => {
+    loadNotices();
+  }, []);
+
+  const submit = async (e) => {
+    e.preventDefault();
+
+    try {
+      await api.post("/admin/notices", form);
+      setForm({
+        title: "",
+        description: "",
+        category: "general",
+      });
+      loadNotices();
+    } catch (err) {
+      alert("Failed to add notice");
+      console.error(err);
+    }
+  };
+
+  const del = async (id) => {
+    if (!confirm("Delete this notice?")) return;
+    await api.delete(`/admin/notices/${id}`);
+    loadNotices();
   };
 
   return (
     <div className="p-8 max-w-3xl">
       <h2 className="text-2xl font-bold mb-4">Manage Notices</h2>
 
-      <form onSubmit={handleAdd} className="space-y-3 mb-6">
+      {error && <p className="text-red-600 mb-4">{error}</p>}
+
+      <form onSubmit={submit} className="space-y-3 mb-6">
         <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          required
           placeholder="Title"
           className="w-full border p-2 rounded"
-          required
+          value={form.title}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
         />
 
         <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          required
           placeholder="Description"
           className="w-full border p-2 rounded"
-          required
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
         />
 
         <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
           className="w-full border p-2 rounded"
+          value={form.category}
+          onChange={(e) => setForm({ ...form, category: e.target.value })}
         >
           <option value="general">General</option>
           <option value="examination">Examination</option>
           <option value="admission">Admission</option>
         </select>
 
-        <button
-          disabled={loading}
-          className="bg-teal-600 text-white px-4 py-2 rounded"
-        >
-          {loading ? "Adding..." : "Add Notice"}
+        <button className="bg-teal-600 text-white px-4 py-2 rounded">
+          Add Notice
         </button>
-
-        {message && <p className="text-sm">{message}</p>}
       </form>
 
       <h3 className="font-semibold mb-2">Existing Notices</h3>
+
       {notices.map((n) => (
         <div key={n.id} className="border p-3 mb-2 rounded">
           <p className="font-medium">{n.title}</p>
           <p className="text-sm text-gray-600">{n.description}</p>
-          <p className="text-xs text-gray-400">{n.category}</p>
+          <p className="text-xs text-gray-400 capitalize">{n.category}</p>
 
           <button
-            onClick={() => handleDelete(n.id)}
+            onClick={() => del(n.id)}
             className="text-red-600 text-sm mt-2"
           >
             Delete
           </button>
         </div>
       ))}
+
+      {notices.length === 0 && (
+        <p className="text-gray-500">No notices found</p>
+      )}
     </div>
   );
 }

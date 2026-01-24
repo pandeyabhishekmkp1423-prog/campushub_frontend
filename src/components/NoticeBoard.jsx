@@ -1,91 +1,135 @@
 import { useEffect, useState } from "react";
 import publicApi from "../services/publicApi";
+import {
+  FaBullhorn,
+  FaClipboardList,
+  FaGraduationCap,
+} from "react-icons/fa";
 
+/* =========================
+   SINGLE NOTICE ROW
+========================= */
+function NoticeRow({ index, title, description }) {
+  return (
+    <div
+      className="group py-4 border-b last:border-none transition
+                 hover:bg-slate-50 px-2 rounded-md"
+    >
+      <div className="flex gap-4">
+        {/* NUMBER */}
+        <div className="flex-shrink-0">
+          <span
+            className="w-8 h-8 flex items-center justify-center rounded-full
+                       bg-slate-100 text-slate-700 text-sm font-semibold
+                       group-hover:bg-teal-600 group-hover:text-white transition"
+          >
+            {index + 1}
+          </span>
+        </div>
+
+        {/* CONTENT */}
+        <div>
+          <p className="text-[15px] font-semibold text-slate-900 tracking-tight">
+            {title}
+          </p>
+          <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+            {description}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================
+   NOTICE SECTION
+========================= */
+function NoticeSection({ icon, title, notices }) {
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+      {/* HEADER */}
+      <div className="flex items-center gap-3 mb-6 pb-3 border-b">
+        <span className="text-teal-600 text-xl">{icon}</span>
+        <h3 className="text-lg font-bold text-slate-800 tracking-wide">
+          {title}
+        </h3>
+        <span className="ml-auto text-xs bg-slate-100 px-3 py-1 rounded-full text-slate-600">
+          {notices.length} Notices
+        </span>
+      </div>
+
+      {/* BODY */}
+      {notices.length === 0 ? (
+        <p className="text-sm text-slate-400 italic">
+          No notices available
+        </p>
+      ) : (
+        notices.map((n, i) => (
+          <NoticeRow
+            key={n.id}
+            index={i}
+            title={n.title}
+            description={n.description}
+          />
+        ))
+      )}
+    </div>
+  );
+}
+
+/* =========================
+   MAIN NOTICE BOARD
+========================= */
 export default function NoticeBoard() {
   const [notices, setNotices] = useState([]);
 
   useEffect(() => {
-    publicApi.get("/notices").then((res) => {
-      setNotices(res.data);
-    });
+    publicApi.get("/notices").then((res) => setNotices(res.data));
   }, []);
 
   const byCategory = (cat) =>
     notices.filter((n) => n.category === cat);
 
-  const Column = ({ title, items, color }) => (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition p-6 flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className={`text-lg font-bold ${color}`}>
-          {title}
-        </h3>
-        <span className="text-xs text-gray-400">
-          {items.length} Updates
-        </span>
-      </div>
-
-      {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto space-y-4 pr-1 custom-scroll">
-        {items.length === 0 && (
-          <p className="text-sm text-gray-400 italic">
-            No notices available
-          </p>
-        )}
-
-        {items.map((n) => (
-          <div
-            key={n.id}
-            className="group border-l-4 pl-4 border-gray-200 hover:border-teal-600 transition"
-          >
-            <p className="font-medium text-sm text-gray-800 group-hover:text-teal-700">
-              {n.title}
-            </p>
-            <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-              {n.description}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {/* Footer */}
-      <div className="mt-4 pt-3 border-t text-right">
-        <button className="text-xs text-teal-600 hover:text-white hover:bg-teal-600 px-4 py-2 rounded-full transition">
-          View All →
-        </button>
-      </div>
-    </div>
-  );
-
   return (
-    <section className="py-20 px-6 bg-slate-100">
-      {/* Section Title */}
-      <div className="text-center mb-14">
-        <h2 className="text-4xl font-extrabold text-slate-900">
-          Notice Board
-        </h2>
-        <p className="text-slate-500 mt-3">
-          Latest updates & important announcements
-        </p>
-      </div>
+    <section
+      className="py-28 px-6"
+      style={{
+        background:
+          "linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%)",
+      }}
+    >
+      <div className="max-w-7xl mx-auto">
+        {/* HEADER */}
+        <div className="text-center mb-20">
+          <h2 className="text-5xl font-extrabold tracking-tight text-slate-900">
+            University Notice Board
+          </h2>
+          <p className="text-slate-600 mt-4 max-w-3xl mx-auto text-lg">
+            Official announcements, academic updates, and institutional
+            communications from CampusHub University.
+          </p>
+        </div>
 
-      {/* Notice Columns */}
-      <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
-        <Column
-          title="General Notices"
-          items={byCategory("general")}
-          color="text-indigo-600"
-        />
-        <Column
-          title="Examination Updates"
-          items={byCategory("examination")}
-          color="text-rose-600"
-        />
-        <Column
-          title="Admissions"
-          items={byCategory("admission")}
-          color="text-emerald-600"
-        />
+        {/* THREE SEPARATE SECTIONS */}
+        <div className="grid md:grid-cols-3 gap-10">
+          <NoticeSection
+            title="General Announcements"
+            icon={<FaBullhorn />}
+            notices={byCategory("general")}
+          />
+
+          <NoticeSection
+            title="Examination Updates"
+            icon={<FaClipboardList />}
+            notices={byCategory("examination")}
+          />
+
+          <NoticeSection
+            title="Admissions & Academics"
+            icon={<FaGraduationCap />}
+            notices={byCategory("admission")}
+          />
+        </div>
       </div>
     </section>
   );

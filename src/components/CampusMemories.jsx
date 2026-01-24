@@ -16,31 +16,28 @@ export default function CampusMemories() {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    const fetchAll = async () => {
-      const result = [];
+    const fetchAllCategories = async () => {
+      try {
+        const result = [];
 
-      for (const cat of categories) {
-        try {
+        for (const cat of categories) {
           const res = await publicApi.get(`/gallery/${cat.key}`);
 
-          if (res.data.length > 0) {
+          if (res.data && res.data.length > 0) {
             result.push({
               title: cat.title,
-              images: res.data.map(
-                (img) =>
-                  `http://localhost:5000/${img.image_url}`
-              ),
+              images: res.data.map((img) => img.image_url), // ✅ Supabase public URL
             });
           }
-        } catch (err) {
-          console.error("Gallery error:", cat.key);
         }
-      }
 
-      setData(result);
+        setData(result);
+      } catch (err) {
+        console.error("CAMPUS MEMORIES ERROR:", err);
+      }
     };
 
-    fetchAll();
+    fetchAllCategories();
   }, []);
 
   const open = (cat) => {
@@ -49,11 +46,9 @@ export default function CampusMemories() {
   };
 
   return (
-    <section className="py-24 px-6 bg-white reveal">
+    <section className="py-24 px-6 bg-white">
       <div className="text-center mb-16">
-        <h2 className="text-4xl font-extrabold">
-          Campus Memories
-        </h2>
+        <h2 className="text-4xl font-extrabold">Campus Memories</h2>
         <p className="text-gray-600 mt-3">
           Moments that define life at CampusHub
         </p>
@@ -72,7 +67,7 @@ export default function CampusMemories() {
               alt={cat.title}
               className="absolute inset-0 w-full h-full object-cover
                          transition-transform duration-700
-                         group-hover:scale-110 group-hover:translate-x-2"
+                         group-hover:scale-110"
             />
             <div className="absolute inset-0 bg-black/50" />
             <div className="absolute inset-0 flex items-center justify-center">
@@ -84,23 +79,22 @@ export default function CampusMemories() {
         ))}
       </div>
 
-      {/* MODAL */}
+      {/* IMAGE MODAL */}
       {active && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center">
           <div className="relative max-w-4xl w-full px-6">
             <img
               src={active.images[index]}
               className="w-full h-[70vh] object-cover rounded-xl"
+              alt="Campus Memory"
             />
 
             {active.images.length > 1 && (
               <button
                 onClick={() =>
-                  setIndex(
-                    (index + 1) % active.images.length
-                  )
+                  setIndex((index + 1) % active.images.length)
                 }
-                className="absolute right-8 top-1/2 text-white text-3xl"
+                className="absolute right-8 top-1/2 text-white text-4xl"
               >
                 ›
               </button>
@@ -108,7 +102,7 @@ export default function CampusMemories() {
 
             <button
               onClick={() => setActive(null)}
-              className="absolute top-6 right-6 text-white text-xl"
+              className="absolute top-6 right-6 text-white text-2xl"
             >
               ✕
             </button>

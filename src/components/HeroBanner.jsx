@@ -10,46 +10,77 @@ export default function HeroBanner() {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(
-      () => setIndex((i) => (i + 1) % images.length),
-      4000
-    );
+    const interval = setInterval(() => {
+      setIndex((i) => (i + 1) % images.length);
+    }, 4500);
     return () => clearInterval(interval);
   }, []);
 
-return (
-  <section
-    className="h-[55vh] bg-cover bg-center flex items-center justify-center text-white transition-all"
-    style={{ backgroundImage: `url(${images[index]})` }}
-  >
-    <div className="bg-black/60 w-full h-full flex items-center justify-center text-center">
-      <div className="px-6 max-w-4xl">
-        <h1 className="text-4xl md:text-5xl font-extrabold mb-6">
-          Shaping the Future Through Education
-        </h1>
+  return (
+    <section
+      className="relative h-[65vh] md:h-[75vh] bg-cover bg-center transition-all duration-1000"
+      style={{ backgroundImage: `url(${images[index]})` }}
+    >
+      {/* GRADIENT OVERLAY */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30" />
 
-        <p className="text-lg md:text-xl opacity-90 mb-8">
-          Discover world-class courses, vibrant campus life, academic excellence,
-          and achievements that shape tomorrow’s leaders at CampusHub.
-        </p>
+      {/* CONTENT */}
+      <div className="relative z-10 h-full flex items-center">
+        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
+          
+          {/* TEXT */}
+          <div className="text-white animate-fadeIn">
+            <span className="inline-block mb-4 px-4 py-1 rounded-full text-xs tracking-widest bg-teal-600/90 uppercase">
+              Trusted Since 1998
+            </span>
 
-        <div className="flex justify-center gap-4">
-          <a
-            href="/courses"
-            className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-full shadow-md transition"
-          >
-            Explore Courses
-          </a>
+            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-6">
+              Shaping the Future <br />
+              <span className="text-teal-400">Through Education</span>
+            </h1>
 
-          <a
-            href="#memories"
-            className="border border-white px-6 py-3 rounded-full hover:bg-white hover:text-black transition"
-          >
-            Campus Memories
-          </a>
+            <p className="text-lg md:text-xl text-slate-200 max-w-xl mb-10">
+              World-class academics, innovative research, and a vibrant campus
+              environment designed to empower tomorrow’s global leaders.
+            </p>
+
+            {/* CTA */}
+            <div className="flex flex-wrap gap-4">
+              <a
+                href="/courses"
+                className="px-8 py-3 rounded-full bg-teal-600 text-white
+                           font-semibold shadow-lg hover:bg-teal-700 transition"
+              >
+                Explore Courses
+              </a>
+
+              <a
+                href="/campus-memories"
+                className="px-8 py-3 rounded-full border border-white/80
+                           text-white hover:bg-white hover:text-black transition"
+              >
+                Campus Life
+              </a>
+            </div>
+          </div>
+
+          {/* RIGHT DECORATIVE PANEL (DESKTOP ONLY) */}
+          <div className="hidden md:flex justify-end">
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl w-80">
+              <h3 className="text-white font-bold text-lg mb-4">
+                Why Choose CampusHub?
+              </h3>
+              <ul className="text-slate-200 text-sm space-y-3">
+                <li>✔ NAAC A+ Accredited University</li>
+                <li>✔ 100+ Industry-Aligned Programs</li>
+                <li>✔ Global Alumni Network</li>
+                <li>✔ Modern Labs & Research Centers</li>
+              </ul>
+            </div>
+          </div>
+
         </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
 }

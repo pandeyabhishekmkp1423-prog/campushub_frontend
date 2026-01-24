@@ -3,12 +3,32 @@ import api from "../../services/api";
 
 export default function RegisteredUsers() {
   const [enquiries, setEnquiries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    api.get("/admin/enquiries")
-      .then(res => setEnquiries(res.data))
-      .catch(err => console.error(err));
+    const loadEnquiries = async () => {
+      try {
+        const res = await api.get("/admin/enquiries");
+        setEnquiries(res.data);
+      } catch (err) {
+        console.error("Failed to fetch enquiries:", err);
+        setError("Failed to load enquiries");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadEnquiries();
   }, []);
+
+  if (loading) {
+    return <p className="p-6">Loading enquiries...</p>;
+  }
+
+  if (error) {
+    return <p className="p-6 text-red-600">{error}</p>;
+  }
 
   return (
     <div>

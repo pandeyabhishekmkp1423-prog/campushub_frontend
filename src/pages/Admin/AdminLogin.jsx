@@ -5,6 +5,7 @@ import logo from "../../assets/logo.svg";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -34,17 +35,13 @@ export default function AdminLogin() {
 
   return (
     <div className="admin-login-wrapper">
-      {/* Background */}
       <div className="admin-bg" />
 
-      {/* Login Card */}
-      <form onSubmit={handleSubmit} className="admin-card animate-fadeIn">
+      <form onSubmit={handleSubmit} className="admin-card">
         <img src={logo} alt="CampusHub" className="admin-logo" />
 
         <h1 className="admin-title">Secure Admin Login</h1>
-        <p className="admin-subtitle">
-          Welcome to CampusHub Administration
-        </p>
+        <p className="admin-subtitle">Welcome to CampusHub Administration</p>
 
         {error && <p className="admin-error">{error}</p>}
 
