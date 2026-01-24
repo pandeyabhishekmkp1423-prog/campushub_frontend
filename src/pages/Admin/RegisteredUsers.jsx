@@ -6,14 +6,18 @@ export default function RegisteredUsers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  /* =========================
+     LOAD ENQUIRIES
+  ========================= */
   useEffect(() => {
     const loadEnquiries = async () => {
       try {
         const res = await api.get("/admin/enquiries");
         setEnquiries(res.data);
+        setError("");
       } catch (err) {
         console.error("Failed to fetch enquiries:", err);
-        setError("Failed to load enquiries");
+        setError("Unable to load enquiry submissions");
       } finally {
         setLoading(false);
       }
@@ -22,50 +26,110 @@ export default function RegisteredUsers() {
     loadEnquiries();
   }, []);
 
+  /* =========================
+     STATES
+  ========================= */
   if (loading) {
-    return <p className="p-6">Loading enquiries...</p>;
+    return (
+      <div className="p-8">
+        <p className="text-slate-500">Loading enquiry submissions...</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <p className="p-6 text-red-600">{error}</p>;
+    return (
+      <div className="p-8">
+        <p className="text-red-600 font-medium">{error}</p>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-6">Enquiry Submissions</h2>
+    <div className="p-8">
+      {/* HEADER */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-slate-900">
+          Enquiry Submissions
+        </h2>
+        <p className="text-sm text-slate-500 mt-1">
+          Admission and course enquiries submitted by prospective students
+        </p>
+      </div>
 
-      <div className="overflow-x-auto bg-white rounded-xl shadow">
-        <table className="min-w-full text-sm">
-          <thead className="bg-slate-100 text-left">
-            <tr>
-              <th className="p-3">Name</th>
-              <th className="p-3">Email</th>
-              <th className="p-3">Phone</th>
-              <th className="p-3">Course</th>
-              <th className="p-3">Message</th>
-              <th className="p-3">Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {enquiries.map((e) => (
-              <tr key={e.id} className="border-t hover:bg-slate-50">
-                <td className="p-3">{e.name}</td>
-                <td className="p-3">{e.email}</td>
-                <td className="p-3">{e.phone}</td>
-                <td className="p-3">{e.course_interest}</td>
-                <td className="p-3 max-w-xs truncate">{e.message}</td>
-                <td className="p-3">
-                  {new Date(e.created_at).toLocaleDateString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* TABLE CONTAINER */}
+      <div className="bg-white rounded-xl shadow overflow-hidden">
+        {enquiries.length === 0 ? (
+          <div className="p-8 text-center text-slate-500 text-sm">
+            No enquiries have been submitted yet.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              {/* TABLE HEAD */}
+              <thead className="bg-slate-100 sticky top-0">
+                <tr>
+                  <th className="p-4 text-left font-semibold text-slate-700">
+                    Name
+                  </th>
+                  <th className="p-4 text-left font-semibold text-slate-700">
+                    Email
+                  </th>
+                  <th className="p-4 text-left font-semibold text-slate-700">
+                    Phone
+                  </th>
+                  <th className="p-4 text-left font-semibold text-slate-700">
+                    Course
+                  </th>
+                  <th className="p-4 text-left font-semibold text-slate-700">
+                    Message
+                  </th>
+                  <th className="p-4 text-left font-semibold text-slate-700">
+                    Date
+                  </th>
+                </tr>
+              </thead>
 
-        {enquiries.length === 0 && (
-          <p className="p-6 text-center text-gray-500">
-            No enquiries yet
-          </p>
+              {/* TABLE BODY */}
+              <tbody>
+                {enquiries.map((e) => (
+                  <tr
+                    key={e.id}
+                    className="border-t hover:bg-slate-50 transition"
+                  >
+                    <td className="p-4 font-medium text-slate-900">
+                      {e.name}
+                    </td>
+
+                    <td className="p-4 text-slate-700">
+                      {e.email}
+                    </td>
+
+                    <td className="p-4 text-slate-700">
+                      {e.phone}
+                    </td>
+
+                    <td className="p-4">
+                      <span className="inline-block px-2 py-1 text-xs rounded-full bg-teal-50 text-teal-700">
+                        {e.course_interest}
+                      </span>
+                    </td>
+
+                    <td
+                      className="p-4 max-w-xs truncate text-slate-600"
+                      title={e.message || ""}
+                    >
+                      {e.message || "—"}
+                    </td>
+
+                    <td className="p-4 text-slate-500">
+                      {new Date(e.created_at).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

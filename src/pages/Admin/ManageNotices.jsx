@@ -4,6 +4,7 @@ import api from "../../services/api";
 export default function ManageNotices() {
   const [notices, setNotices] = useState([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const [form, setForm] = useState({
     title: "",
@@ -11,14 +12,19 @@ export default function ManageNotices() {
     category: "general",
   });
 
+  /* =========================
+     LOAD NOTICES
+  ========================= */
   const loadNotices = async () => {
     try {
       const res = await api.get("/admin/notices");
       setNotices(res.data);
       setError("");
     } catch (err) {
-      setError("Failed to load notices");
       console.error(err);
+      setError("Failed to load notices");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -26,6 +32,9 @@ export default function ManageNotices() {
     loadNotices();
   }, []);
 
+  /* =========================
+     ADD NOTICE
+  ========================= */
   const submit = async (e) => {
     e.preventDefault();
 
@@ -43,70 +52,144 @@ export default function ManageNotices() {
     }
   };
 
+  /* =========================
+     DELETE NOTICE
+  ========================= */
   const del = async (id) => {
-    if (!confirm("Delete this notice?")) return;
-    await api.delete(`/admin/notices/${id}`);
-    loadNotices();
+    if (!confirm("Are you sure you want to delete this notice?")) return;
+
+    try {
+      await api.delete(`/admin/notices/${id}`);
+      loadNotices();
+    } catch (err) {
+      alert("Failed to delete notice");
+      console.error(err);
+    }
   };
 
+  /* =========================
+     STATES
+  ========================= */
+  if (loading) {
+    return (
+      <div className="p-8">
+        <p className="text-slate-500">Loading notices...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8">
+        <p className="text-red-600 font-medium">{error}</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-8 max-w-3xl">
-      <h2 className="text-2xl font-bold mb-4">Manage Notices</h2>
+    <div className="p-8 max-w-5xl">
+      {/* HEADER */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-slate-900">
+          Manage Notices
+        </h2>
+        <p className="text-sm text-slate-500 mt-1">
+          Create, view, and manage important university announcements
+        </p>
+      </div>
 
-      {error && <p className="text-red-600 mb-4">{error}</p>}
+      {/* ADD NOTICE FORM */}
+      <div className="bg-white rounded-xl shadow p-6 mb-10">
+        <h3 className="text-lg font-semibold mb-4 text-slate-800">
+          Add New Notice
+        </h3>
 
-      <form onSubmit={submit} className="space-y-3 mb-6">
-        <input
-          required
-          placeholder="Title"
-          className="w-full border p-2 rounded"
-          value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
-        />
+        <form onSubmit={submit} className="space-y-4">
+          <input
+            required
+            placeholder="Notice title"
+            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            value={form.title}
+            onChange={(e) =>
+              setForm({ ...form, title: e.target.value })
+            }
+          />
 
-        <textarea
-          required
-          placeholder="Description"
-          className="w-full border p-2 rounded"
-          value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
-        />
+          <textarea
+            required
+            placeholder="Notice description"
+            rows={4}
+            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            value={form.description}
+            onChange={(e) =>
+              setForm({ ...form, description: e.target.value })
+            }
+          />
 
-        <select
-          className="w-full border p-2 rounded"
-          value={form.category}
-          onChange={(e) => setForm({ ...form, category: e.target.value })}
-        >
-          <option value="general">General</option>
-          <option value="examination">Examination</option>
-          <option value="admission">Admission</option>
-        </select>
-
-        <button className="bg-teal-600 text-white px-4 py-2 rounded">
-          Add Notice
-        </button>
-      </form>
-
-      <h3 className="font-semibold mb-2">Existing Notices</h3>
-
-      {notices.map((n) => (
-        <div key={n.id} className="border p-3 mb-2 rounded">
-          <p className="font-medium">{n.title}</p>
-          <p className="text-sm text-gray-600">{n.description}</p>
-          <p className="text-xs text-gray-400 capitalize">{n.category}</p>
+          <select
+            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            value={form.category}
+            onChange={(e) =>
+              setForm({ ...form, category: e.target.value })
+            }
+          >
+            <option value="general">General</option>
+            <option value="examination">Examination</option>
+            <option value="admission">Admission</option>
+          </select>
 
           <button
-            onClick={() => del(n.id)}
-            className="text-red-600 text-sm mt-2"
+            type="submit"
+            className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded font-medium"
           >
-            Delete
+            Add Notice
           </button>
-        </div>
-      ))}
+        </form>
+      </div>
 
-      {notices.length === 0 && (
-        <p className="text-gray-500">No notices found</p>
-      )}
+      {/* EXISTING NOTICES */}
+      <div>
+        <h3 className="text-lg font-semibold mb-4 text-slate-800">
+          Existing Notices
+        </h3>
+
+        {notices.length === 0 ? (
+          <div className="bg-white rounded-xl shadow p-6">
+            <p className="text-slate-500 text-sm">
+              No notices have been added yet.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {notices.map((n) => (
+              <div
+                key={n.id}
+                className="bg-white rounded-xl shadow p-5 flex justify-between items-start"
+              >
+                <div>
+                  <p className="font-semibold text-slate-900">
+                    {n.title}
+                  </p>
+                  <p className="text-sm text-slate-600 mt-1">
+                    {n.description}
+                  </p>
+
+                  <span className="inline-block mt-2 text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600 capitalize">
+                    {n.category}
+                  </span>
+                </div>
+
+                <button
+                  onClick={() => del(n.id)}
+                  className="text-red-600 text-sm font-medium hover:underline"
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
