@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import AdminLayout from "./components/AdminLayout";
 
@@ -31,21 +31,18 @@ export default function App() {
         {/* ================= ADMIN LOGIN ================= */}
         <Route path="/admin/login" element={<AdminLogin />} />
 
-        {/* ================= ADMIN PANEL ================= */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedAdminRoute>
-              <AdminLayout />
-            </ProtectedAdminRoute>
-          }
-        >
-          <Route index element={<Dashboard />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="notices" element={<ManageNotices />} />
-          <Route path="gallery" element={<ManageGallery />} />
-          <Route path="courses" element={<ManageCourses />} />
-          <Route path="users" element={<RegisteredUsers />} />
+        {/* ================= ADMIN PROTECTED ================= */}
+        <Route element={<ProtectedAdminRoute />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            {/* Redirect /admin → /admin/dashboard */}
+            <Route index element={<Navigate to="dashboard" replace />} />
+
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="notices" element={<ManageNotices />} />
+            <Route path="gallery" element={<ManageGallery />} />
+            <Route path="courses" element={<ManageCourses />} />
+            <Route path="users" element={<RegisteredUsers />} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>

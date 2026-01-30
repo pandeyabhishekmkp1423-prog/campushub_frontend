@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import logo from "../../assets/logo.svg";
@@ -11,9 +11,12 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  /* =========================
-     SUBMIT HANDLER
-  ========================= */
+  // 🔥 HARD RESET ANY OLD ADMIN STATE
+  useEffect(() => {
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminRole");
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -25,16 +28,15 @@ export default function AdminLogin() {
         password,
       });
 
-      // Store admin session
       localStorage.setItem("adminToken", res.data.token);
-      localStorage.setItem("adminRole", res.data.role);
+      localStorage.setItem("adminRole", "admin");
 
-      // Redirect to dashboard
-      navigate("/admin/dashboard");
+      navigate("/admin/dashboard", { replace: true });
     } catch (err) {
+      console.error("Admin login error:", err);
       setError(
         err.response?.data?.message ||
-        "Invalid credentials. Please try again."
+          "Invalid credentials. Please try again."
       );
     } finally {
       setLoading(false);
@@ -42,96 +44,50 @@ export default function AdminLogin() {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-4
-                 bg-cover bg-center relative"
-      style={{
-        backgroundImage:
-          "url(https://images.unsplash.com/photo-1523050854058-8df90110c9f1)",
-      }}
-    >
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-slate-900/70" />
-
-      {/* Login Card */}
+    <div className="min-h-screen flex items-center justify-center px-4 bg-slate-900">
       <form
         onSubmit={handleSubmit}
-        className="relative w-full max-w-md bg-white/90
-                   backdrop-blur-xl rounded-2xl shadow-2xl
-                   p-10 space-y-5 animate-fadeIn"
+        className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md space-y-4"
       >
-        {/* Logo */}
-        <div className="flex justify-center mb-4">
-          <img src={logo} alt="CampusHub" className="h-12" />
+        <div className="flex justify-center">
+          <img src={logo} alt="CampusHub" className="h-10" />
         </div>
 
-        {/* Title */}
-        <div className="text-center">
-          <h1 className="text-3xl font-extrabold text-slate-900">
-            Secure Admin Login
-          </h1>
-          <p className="text-sm text-slate-600 mt-1">
-            CampusHub Administration Panel
-          </p>
-        </div>
+        <h2 className="text-2xl font-bold text-center">
+          Admin Login
+        </h2>
 
-        {/* Error */}
         {error && (
-          <p className="text-sm text-red-600 text-center">
+          <p className="text-red-600 text-sm text-center">
             {error}
           </p>
         )}
 
-        {/* Email */}
-        <div>
-          <label className="text-sm font-medium text-slate-700">
-            Admin Email
-          </label>
-          <input
-            type="email"
-            placeholder="admin@campushub.edu"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="mt-1 w-full px-4 py-3 rounded-lg border
-                       border-slate-300 focus:outline-none
-                       focus:ring-2 focus:ring-teal-500"
-          />
-        </div>
+        <input
+          type="email"
+          placeholder="Admin email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="w-full border px-3 py-2 rounded"
+        />
 
-        {/* Password */}
-        <div>
-          <label className="text-sm font-medium text-slate-700">
-            Password
-          </label>
-          <input
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="mt-1 w-full px-4 py-3 rounded-lg border
-                       border-slate-300 focus:outline-none
-                       focus:ring-2 focus:ring-teal-500"
-          />
-        </div>
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="w-full border px-3 py-2 rounded"
+        />
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 rounded-lg bg-teal-600
-                     text-white font-semibold shadow-md
-                     hover:bg-teal-700 transition
-                     disabled:opacity-60"
+          className="w-full bg-teal-600 text-white py-2 rounded"
         >
           {loading ? "Signing in..." : "Login"}
         </button>
-
-        {/* Footer */}
-        <p className="text-xs text-center text-slate-400 mt-3">
-          Authorized personnel only. Unauthorized access prohibited.
-        </p>
       </form>
     </div>
   );

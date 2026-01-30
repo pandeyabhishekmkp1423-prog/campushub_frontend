@@ -33,6 +33,13 @@ export default function ManageNotices() {
   }, []);
 
   /* =========================
+     EMIT DASHBOARD REFRESH
+  ========================= */
+  const notifyDashboard = () => {
+    window.dispatchEvent(new Event("dashboard:refresh"));
+  };
+
+  /* =========================
      ADD NOTICE
   ========================= */
   const submit = async (e) => {
@@ -40,12 +47,15 @@ export default function ManageNotices() {
 
     try {
       await api.post("/admin/notices", form);
+
       setForm({
         title: "",
         description: "",
         category: "general",
       });
-      loadNotices();
+
+      await loadNotices();
+      notifyDashboard(); // 🔥 KEY LINE
     } catch (err) {
       alert("Failed to add notice");
       console.error(err);
@@ -60,7 +70,8 @@ export default function ManageNotices() {
 
     try {
       await api.delete(`/admin/notices/${id}`);
-      loadNotices();
+      await loadNotices();
+      notifyDashboard(); // 🔥 KEY LINE
     } catch (err) {
       alert("Failed to delete notice");
       console.error(err);
@@ -108,7 +119,7 @@ export default function ManageNotices() {
           <input
             required
             placeholder="Notice title"
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="w-full border rounded px-3 py-2"
             value={form.title}
             onChange={(e) =>
               setForm({ ...form, title: e.target.value })
@@ -119,7 +130,7 @@ export default function ManageNotices() {
             required
             placeholder="Notice description"
             rows={4}
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="w-full border rounded px-3 py-2"
             value={form.description}
             onChange={(e) =>
               setForm({ ...form, description: e.target.value })
@@ -127,15 +138,15 @@ export default function ManageNotices() {
           />
 
           <select
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="w-full border rounded px-3 py-2"
             value={form.category}
             onChange={(e) =>
               setForm({ ...form, category: e.target.value })
             }
           >
-            <option value="general">General</option>
-            <option value="examination">Examination</option>
-            <option value="admission">Admission</option>
+            <option value="general">General Announcements</option>
+            <option value="examination">Examination Updates</option>
+            <option value="admission">Admissions & Academics</option>
           </select>
 
           <button
@@ -164,24 +175,21 @@ export default function ManageNotices() {
             {notices.map((n) => (
               <div
                 key={n.id}
-                className="bg-white rounded-xl shadow p-5 flex justify-between items-start"
+                className="bg-white rounded-xl shadow p-5 flex justify-between"
               >
                 <div>
-                  <p className="font-semibold text-slate-900">
-                    {n.title}
-                  </p>
+                  <p className="font-semibold">{n.title}</p>
                   <p className="text-sm text-slate-600 mt-1">
                     {n.description}
                   </p>
-
-                  <span className="inline-block mt-2 text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600 capitalize">
+                  <span className="inline-block mt-2 text-xs px-2 py-1 rounded-full bg-slate-100 capitalize">
                     {n.category}
                   </span>
                 </div>
 
                 <button
                   onClick={() => del(n.id)}
-                  className="text-red-600 text-sm font-medium hover:underline"
+                  className="text-red-600 text-sm font-medium"
                 >
                   Delete
                 </button>
